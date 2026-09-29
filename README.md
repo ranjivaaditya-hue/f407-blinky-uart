@@ -72,6 +72,38 @@ installed as part of the STM32Cube extension pack.
    ```
    printed every 500 ms in sync with the four LEDs turning on/off together.
 
+## 5. Optional: MATLAB MCP server
+
+`.mcp.json` in this folder registers MathWorks' [MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server),
+which lets Claude Code drive a MATLAB session on this machine — write MATLAB
+code, run it, and read the results back — instead of you copy-pasting between
+the two. It's entirely optional; the build above doesn't depend on it.
+
+Why it's handy for this project: the firmware streams LED state over USART2, and
+once that stream carries real sensor data (ADC samples, IMU readings) MATLAB is
+the natural place to plot and analyse a capture, design a filter, and then hand
+the resulting coefficients back to be pasted into `src/main.c`.
+
+Setup (one time):
+
+1. Install MATLAB R2021a or later and make sure it's on PATH.
+2. Download the server binary for your platform from the
+   [releases page](https://github.com/matlab/matlab-mcp-server/releases)
+   (`matlab-mcp-server-windows-x64.exe` here).
+3. Either put that binary on PATH as `matlab-mcp-server`, or point the
+   `MATLAB_MCP_SERVER` environment variable at its full path.
+4. Start Claude Code in this folder and approve the `matlab` server when it
+   asks — project-scoped servers need a one-time approval per user.
+
+Useful extra `args` in `.mcp.json` if you want them: `--matlab-root` (pick a
+specific MATLAB install, path without `/bin`), `--matlab-display-mode=nodesktop`
+(no MATLAB GUI), `--matlab-session-mode=existing` (attach to a MATLAB you
+already have open), `--initialize-matlab-on-startup=true` (avoid the first-call
+startup delay).
+
+The server only works where MATLAB is actually installed — it's a local
+desktop integration, so it does nothing in a Claude Code web/cloud session.
+
 ## Notes
 
 - This project intentionally skips STM32CubeMX/HAL so it's buildable right

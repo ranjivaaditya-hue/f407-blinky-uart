@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "matlab": {
+      "type": "stdio",
+      "command": "${MATLAB_MCP_SERVER:-matlab-mcp-server}",
+      "args": []
+    }
+  }
+}
