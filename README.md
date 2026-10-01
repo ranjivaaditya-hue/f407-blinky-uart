@@ -74,35 +74,41 @@ installed as part of the STM32Cube extension pack.
 
 ## 5. Optional: MATLAB MCP server
 
-`.mcp.json` in this folder registers MathWorks' [MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server),
-which lets Claude Code drive a MATLAB session on this machine — write MATLAB
-code, run it, and read the results back — instead of you copy-pasting between
-the two. It's entirely optional; the build above doesn't depend on it.
+MathWorks' [MATLAB MCP Server](https://github.com/matlab/matlab-mcp-server) lets
+Claude Code drive a MATLAB session on your machine — write MATLAB code, run it,
+and read the results back — instead of you copy-pasting between the two. It's
+entirely optional; the build above doesn't depend on it.
 
-Why it's handy for this project: the firmware streams LED state over USART2, and
-once that stream carries real sensor data (ADC samples, IMU readings) MATLAB is
-the natural place to plot and analyse a capture, design a filter, and then hand
-the resulting coefficients back to be pasted into `src/main.c`.
+Why it's handy here: the firmware streams LED state over USART2, and once that
+stream carries real sensor data (ADC samples, IMU readings) MATLAB is the natural
+place to plot and analyse a capture, design a filter, then hand the resulting
+coefficients back to be pasted into `src/main.c`.
 
-Setup (one time):
+Setup (one time, per machine):
 
-1. Install MATLAB R2021a or later and make sure it's on PATH.
-2. Download the server binary for your platform from the
+1. Install MATLAB R2021a or later and make sure it's on PATH — check with
+   `matlab -batch "disp(version)"`.
+2. Download the binary for your platform from the
    [releases page](https://github.com/matlab/matlab-mcp-server/releases)
-   (`matlab-mcp-server-windows-x64.exe` here).
-3. Either put that binary on PATH as `matlab-mcp-server`, or point the
-   `MATLAB_MCP_SERVER` environment variable at its full path.
-4. Start Claude Code in this folder and approve the `matlab` server when it
-   asks — project-scoped servers need a one-time approval per user.
+   (`matlab-mcp-server-windows-x64.exe` here) and move it somewhere permanent
+   rather than leaving it in Downloads. On Windows, unblock it first:
+   right-click -> Properties -> Unblock, or `Unblock-File <path>` in PowerShell.
+3. Register it with Claude Code, using the full path to the binary:
+   ```
+   claude mcp add --scope user --transport stdio matlab -- "D:\EMBEDDED\CTOOLS\matlab-mcp-server-windows-x64.exe"
+   ```
+   `--scope user` keeps it in your own Claude config and out of this repo, so it
+   works in every project and doesn't break on machines without MATLAB.
+4. Verify with `claude mcp list`, or `/mcp` inside a Claude Code session.
 
-Useful extra `args` in `.mcp.json` if you want them: `--matlab-root` (pick a
-specific MATLAB install, path without `/bin`), `--matlab-display-mode=nodesktop`
-(no MATLAB GUI), `--matlab-session-mode=existing` (attach to a MATLAB you
-already have open), `--initialize-matlab-on-startup=true` (avoid the first-call
-startup delay).
+Useful extra arguments to append after the binary path: `--matlab-root` (pick a
+specific MATLAB install, path without `\bin`), `--matlab-display-mode=nodesktop`
+(no MATLAB GUI), `--matlab-session-mode=existing` (attach to a MATLAB you already
+have open), `--initialize-matlab-on-startup=true` (avoid the first-call startup
+delay).
 
-The server only works where MATLAB is actually installed — it's a local
-desktop integration, so it does nothing in a Claude Code web/cloud session.
+This is a local desktop integration — it only works where MATLAB is actually
+installed, so it does nothing in a Claude Code web/cloud session.
 
 ## Notes
 
